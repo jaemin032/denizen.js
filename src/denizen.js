@@ -1,8 +1,8 @@
 var Denizen;
 
-(function() {
+(function () {
 
-    Denizen = function(options) {
+    Denizen = function (options) {
 
         if ((typeof options) === 'undefined') {
             options = {};
@@ -12,10 +12,14 @@ var Denizen;
         var defaults = {
             setLocation: false,
             unknownString: 'Not Supported',
-            beforeLocationSet: function(data) {},
-            afterLocationSet: function(data) {},
-            beforeInitialized: function() {},
-            afterInitialized: function() {}
+            beforeLocationSet: function (data) {
+            },
+            afterLocationSet: function (data) {
+            },
+            beforeInitialized: function () {
+            },
+            afterInitialized: function () {
+            }
         };
 
         this.settings = {};
@@ -29,7 +33,7 @@ var Denizen;
          *
          * @returns {Object}
          */
-        this.getData = function() {
+        this.getData = function () {
             if ((objectRef.data.location === null) && objectRef.settings.setLocation) {
                 var message = 'You requested location but location is null. ';
                 message = message + 'When asking for location, you have to implement the afterLocationSet callback ';
@@ -57,7 +61,6 @@ var Denizen;
         };
 
 
-
         // "Private" methods -------------------------------------------------------------------------------------------
         /**
          * Robust browser detection, source:
@@ -65,7 +68,7 @@ var Denizen;
          *
          * @returns {*}
          */
-        var detectBrowser = function() {
+        var detectBrowser = function () {
             // Return cached result if available, else get result then cache it.
             if (detectBrowser.prototype._cachedResult) {
                 return detectBrowser.prototype._cachedResult;
@@ -78,7 +81,9 @@ var Denizen;
             var isFirefox = typeof InstallTrigger !== 'undefined';
 
             // Safari 3.0+ "[object HTMLElementConstructor]"
-            var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || safari.pushNotification);
+            var isSafari = /constructor/i.test(window.HTMLElement) || (function (p) {
+                return p.toString() === "[object SafariRemoteNotification]";
+            })(!window['safari'] || safari.pushNotification);
 
             // Internet Explorer 6-11
             var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -94,13 +99,13 @@ var Denizen;
 
             return detectBrowser.prototype._cachedResult =
                 isOpera ? 'Opera' :
-                isFirefox ? 'Firefox' :
-                isSafari ? 'Safari' :
-                isChrome ? 'Chrome' :
-                isIE ? 'Internet Explorer' :
-                isEdge ? 'Edge' :
-                isBlink ? 'Blink' :
-                objectRef.settings.unknownString;
+                    isFirefox ? 'Firefox' :
+                        isSafari ? 'Safari' :
+                            isChrome ? 'Chrome' :
+                                isIE ? 'Internet Explorer' :
+                                    isEdge ? 'Edge' :
+                                        isBlink ? 'Blink' :
+                                            objectRef.settings.unknownString;
         };
 
         /**
@@ -108,15 +113,15 @@ var Denizen;
          *
          * @returns {*}
          */
-        var getLanguage = function() {
+        var getLanguage = function () {
             if ((typeof navigator.userLanguage) === 'string') {
-                return(navigator.userLanguage);
+                return (navigator.userLanguage);
             }
             if ((typeof navigator.language) === 'string') {
-                return(navigator.language);
+                return (navigator.language);
             }
 
-            return(objectRef.settings.unknownString);
+            return (objectRef.settings.unknownString);
         };
 
         /**
@@ -124,7 +129,7 @@ var Denizen;
          *
          * @returns {*}
          */
-        var getLanguages = function() {
+        var getLanguages = function () {
             if ((typeof navigator.languages) === 'string') {
                 return (navigator.language);
             }
@@ -132,7 +137,7 @@ var Denizen;
                 return navigator.languages.join(', ');
             }
 
-            return(objectRef.settings.unknownString);
+            return (objectRef.settings.unknownString);
         };
 
         var setAddress = function (position) {
@@ -144,7 +149,7 @@ var Denizen;
             var request = new XMLHttpRequest();
             request.open('GET', url, true);
 
-            request.onload = function() {
+            request.onload = function () {
                 if (request.status >= 200 && request.status < 400) {
                     // Success!
                     var data = JSON.parse(request.responseText);
@@ -158,7 +163,7 @@ var Denizen;
                 }
             };
 
-            request.onerror = function() {
+            request.onerror = function () {
                 // Triggering the afterLocationSet callback
                 objectRef.settings.afterLocationSet(objectRef.data);
             };
@@ -220,12 +225,34 @@ var Denizen;
         };
 
         /**
+         * Get google analytics client ID
+         * @returns {string}
+         */
+        var getGACid = function () {
+            var cname = '_ga';
+            var name = cname + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        };
+
+
+        /**
          * Set the browser data in self.data attribute
          *
          * @returns {Denizen}
          */
         var setData = function () {
             objectRef.data = {
+                gaClientId: getGACid(),
                 location: null,
                 address: null,
                 browser: {
@@ -262,6 +289,7 @@ var Denizen;
                 },
                 session: {
                     url: window.location.href,
+                    pageTitle: document.title,
                     history: {
                         referrer: document.referrer
                     }
@@ -280,7 +308,7 @@ var Denizen;
         /**
          * Initializing self
          */
-        var initialize = function(options) {
+        var initialize = function (options) {
             // Merging defaults and options
             objectRef.settings = Object.assign(defaults, options);
 
@@ -302,4 +330,4 @@ var Denizen;
 
     };
 
-})( );
+})();
